@@ -1,0 +1,60 @@
+{
+  "type": "object",
+  "properties": {
+    "timestamp_ms": {
+      "type": "integer"
+    },
+    "coin": {
+      "type": "string"
+    },
+    "regime": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number"
+        }
+      }
+    },
+    "signals": {
+      "type": "object",
+      "properties": {
+        "momentum": {
+          "type": "number"
+        },
+        "liquidity": {
+          "type": "number"
+        },
+        "risk": {
+          "type": "number"
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number"
+        },
+        "actionable": {
+          "type": "boolean"
+        },
+        "explain": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "timestamp_ms",
+    "coin",
+    "regime",
+    "signals",
+    "edge"
+  ]
+}
