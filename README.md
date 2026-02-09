@@ -1,93 +1,47 @@
-# Hyperliquid Signal Layer (Interview Prep Project)
+# Hyperliquid Signal Layer
 
-Build an **agent-readable signal layer** for Hyperliquid perpetual markets: ingest real-time WebSocket streams, engineer market-structure features, classify regimes, compute confidence/edge scores, and serve the results via a production-style API.
+Agent-readable signal infrastructure for Hyperliquid perpetual markets.
 
-This repo is designed specifically to prepare for interviews like **"Onchain Signal Infrastructure"** roles.
+This project converts raw on-chain perpetual market data into structured,
+validated signals designed to minimize downstream decision complexity for
+autonomous trading agents.
 
-## What you get
+---
 
-- Real-time **WebSocket ingestion** (trades + L2 book + candle + mids)
-- Rolling feature store (microstructure + flow)
-- Simple-but-solid **regime classifier**
-- **Edge/confidence scoring** with explanations
-- **FastAPI** service with strict schemas
-- Optional **replay mode** from NDJSON for deterministic demos/tests
+## Motivation
 
-## Hyperliquid endpoints (docs)
+Autonomous agents fail when ambiguity is pushed downstream. This project
+moves complexity upstream by encoding market structure, regime context,
+and confidence directly into the signal layer.
 
-- WebSocket: `wss://api.hyperliquid.xyz/ws`  (mainnet) citeturn1view0
-- Subscriptions: `trades`, `l2Book`, `candle`, `allMids`, ... citeturn2view0
-- HTTP info: `POST https://api.hyperliquid.xyz/info` (e.g. `allMids`, `l2Book`, `candleSnapshot`) citeturn1view1
-- WS post requests wrapper: `{ "method": "post", "id": ..., "request": { "type": "info", "payload": {...}}}` citeturn1view2
+---
 
-## Quickstart
+## Architecture
 
-### 1) Create venv + install deps
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+Hyperliquid WebSocket Data
+→ Feature Engineering
+→ Regime Detection
+→ Risk & Momentum Signals
+→ Confidence / Edge Scoring
+→ Agent-Readable API
 
-### 2) Run the API (it will start ingestion automatically)
-```bash
-python -m api.server --coins BTC,ETH,SOL
-# then open: http://127.0.0.1:8000/docs
-```
+---
 
-### 3) Try endpoints
-```bash
-curl http://127.0.0.1:8000/health
-curl "http://127.0.0.1:8000/v1/signal/BTC"
-curl "http://127.0.0.1:8000/v1/state"
-```
+## Signals Produced
 
-### 4) Optional: deterministic replay mode
-First record live data (NDJSON):
-```bash
-python -m tools.recorder --coins BTC --out data/btc.ndjson --seconds 60
-```
+- Market regime classification (trend / mean-revert / liquidation-risk)
+- Momentum and flow-based indicators
+- Liquidity and volatility stress metrics
+- Composite confidence and edge scores
 
-Then replay:
-```bash
-python -m api.server --replay data/btc.ndjson
-```
+---
 
-## Agent-readable output contract
-
-The service emits stable, semantically meaningful objects:
+## API Example
 
 ```json
 {
-  "timestamp_ms": 1710001234567,
-  "coin": "BTC",
-  "regime": { "label": "TRENDING", "confidence": 0.88 },
-  "signals": { "momentum": 0.63, "liquidity": 0.74, "risk": 0.21 },
-  "edge": { "score": 0.69, "actionable": true, "explain": ["trend+flow", "stable regime", "good liquidity"] }
+  "symbol": "BTC",
+  "regime": { "label": "TRENDING", "confidence": 0.86 },
+  "signals": { "momentum": 0.62, "liquidity": 0.71, "risk": 0.19 },
+  "edge": { "score": 0.68, "actionable": true }
 }
-```
-
-## How to talk about this in an interview
-
-- **Why not raw data?** Raw data shifts complexity downstream and creates brittle agents. A signal layer encodes market structure, regime context, and confidence explicitly.
-- **Regime shifts**: detect via volatility expansion + depth decay + flow dominance; treat liquidation-like conditions as a separate regime.
-- **Confidence**: agreement across signals + regime stability + liquidity sufficiency; penalize chaotic/illiquid states.
-
-## Project structure
-
-```
-hyperliquid-signal-layer/
-├── ingestion/          # websocket client + state
-├── features/           # microstructure + flow features
-├── models/             # regime + scoring
-├── scoring/            # edge score + explanations
-├── api/                # FastAPI server + schemas
-├── schemas/            # JSON schema snapshot
-├── tools/              # recorder + replay utilities
-└── data/               # (optional) ndjson captures
-```
-
-## Notes
-
-- This is a *data + signals* project. It does **not** place live trades.
-- All computations are intentionally lightweight and explainable (interview-friendly).
