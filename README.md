@@ -1,4 +1,4 @@
-# Hyperliquid Signal Layer (Interview Prep Project)
+# Hyperliquid Signal Layer
 
 Build an **agent-readable signal layer** for Hyperliquid perpetual markets: ingest real-time WebSocket streams, engineer market-structure features, classify regimes, compute confidence/edge scores, and serve the results via a production-style API.
 
